@@ -134,6 +134,7 @@ class MotionPlanning(Drone):
         lon0 = float(origin_pos_data[1].strip().split(" ")[1])
 
         # TODO: set home position to (lon0, lat0, 0)
+        self.set_home_position(lon0, lat0, 0)
 
         # TODO: retrieve current global position
 

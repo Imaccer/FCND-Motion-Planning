@@ -27,8 +27,33 @@ You're reading it! Below I describe how I addressed each rubric point and where 
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
-These scripts contain a basic planning implementation that includes...
+ The function, `plan_path`, is responsible for planning a path for the drone to follow, primarily using a grid-based approach. Here's an explanation of the function:
 
+The function starts by setting the drone's flight state to PLANNING
+
+The target altitude is then set to 5 meters, and the safety distance is set to 5 meters to keep the drone away from obstacles.
+
+The target position's altitude component is set to the defined TARGET_ALTITUDE.
+
+The function reads the obstacle map data from colliders.csv, which contains information about obstacles in the environment. It skips the first two rows and reads the rest of the data into a NumPy array.
+
+The function calls the `create_grid` function (defined in `planning_utils.py`) with the obstacle data, target altitude, and safety distance to create a 2D grid representation of the environment. Obstacles are marked, and free space is defined for the drone to navigate.
+It returns the grid, north offset, and east offset values, which help align the grid with the real-world coordinate system.
+Define Start Position on the Grid:
+
+The starting position on the grid is set to the center, defined by the negative offsets of the grid.
+
+The goal position on the grid is set arbitrarily, offset by 10 units north and east from the grid's start position.
+
+The A* algorithm is implemented as the `a_star` function in `planning_utils.py` is used to find the optimal path from the start position to the goal position on the grid. It takes the grid, a heuristic, and the start and goal coordinates that we want to plan a path between. The path is returned as a sequence of coordinates.
+
+The path coordinates are converted into waypoints, adjusting for the north and east offsets and setting the target altitude for each waypoint.
+
+The generated waypoints are stored in self.waypoints.
+
+The `send_waypoints()` method is called to send these waypoints to the simulator, enabling visualization of the planned path.
+#### Summary
+Overall, this function sets up a planning environment, creates a grid map based on obstacles, determines a path using A* search, and prepares waypoints for the drone to follow.
 And here's a lovely image of my results (ok this image has nothing to do with it, but it's a nice example of how to include images in your writeup!)
 ![Top Down View](./misc/high_up.png)
 

@@ -119,6 +119,40 @@ class MotionPlanning(Drone):
         data = msgpack.dumps(self.waypoints)
         self.connection._master.write(data)
 
+    def collinearity_check(self, p1, p2, p3, epsilon=1e-6):
+        # Convert points to numpy arrays
+        p1 = np.array(p1)
+        p2 = np.array(p2)
+        p3 = np.array(p3)
+
+        # Check if the area of the triangle formed by the three points is close to zero
+        # This can be done using the determinant of the matrix formed by these points
+        # | x1 y1 1 |
+        # | x2 y2 1 |
+        # | x3 y3 1 |
+        # If determinant is zero, points are collinear
+        collinear = np.abs(np.linalg.det(np.array([p1, p2, p3]))) < epsilon
+        return collinear
+
+    def prune_path(self, path):
+        if len(path) < 3:
+            return path
+
+        pruned_path = [path[0]]
+
+        for i in range(1, len(path) - 1):
+            p1 = pruned_path[-1]
+            p2 = path[i]
+            p3 = path[i + 1]
+
+        # Check if the current set of points is collinear
+        if not self.collinearity_check(p1, p2, p3):
+            pruned_path.append(p2)
+
+        pruned_path.append(path[-1])
+
+        return pruned_path
+
     def plan_path(self):
         self.flight_state = States.PLANNING
         print("Searching for a path ...")
@@ -171,10 +205,11 @@ class MotionPlanning(Drone):
         path, _ = a_star(grid, heuristic, grid_start, grid_goal)
         # TODO: prune path to minimize number of waypoints
         # TODO (if you're feeling ambitious): Try a different approach altogether!
-
+        pruned_path = prune_path(path)
         # Convert path to waypoints
         waypoints = [
-            [p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in path
+            [p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0]
+            for p in pruned_path
         ]
         # Set self.waypoints
         self.waypoints = waypoints

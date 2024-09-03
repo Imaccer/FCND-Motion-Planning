@@ -145,9 +145,9 @@ class MotionPlanning(Drone):
             p2 = path[i]
             p3 = path[i + 1]
 
-        # Check if the current set of points is collinear
-        if not self.collinearity_check(p1, p2, p3):
-            pruned_path.append(p2)
+            # Check if the current set of points is collinear
+            if not self.collinearity_check(p1, p2, p3):
+                pruned_path.append(p2)
 
         pruned_path.append(path[-1])
 
